@@ -4,39 +4,18 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class EmotionPage extends StatefulWidget {
-  final Function(String, String) nextPage;
-  const EmotionPage({super.key, required this.nextPage});
+  final Function(int, int, String, String) onNextPage;
+  final List<dynamic> questions;
+
+  const EmotionPage({
+    super.key,
+    required this.onNextPage,
+    required this.questions,
+  });
 
   @override
   State<EmotionPage> createState() => _EmotionPageState();
 }
-
-List<EmotionWidget> emotionWidget = [
-  const EmotionWidget(
-    image: "assets/😀.png",
-    text: "Excited",
-  ),
-  const EmotionWidget(
-    image: "assets/😊.png",
-    text: "Happy",
-  ),
-  const EmotionWidget(
-    image: "assets/😌.png",
-    text: "Peaceful",
-  ),
-  const EmotionWidget(
-    image: "assets/😞.png",
-    text: "Sad",
-  ),
-  const EmotionWidget(
-    image: "assets/😡.png",
-    text: "Angry",
-  ),
-  const EmotionWidget(
-    image: "assets/😤.png",
-    text: "Frustrated",
-  ),
-];
 
 class _EmotionPageState extends State<EmotionPage> {
   int currentPage = 0;
@@ -44,6 +23,17 @@ class _EmotionPageState extends State<EmotionPage> {
     viewportFraction: 0.7,
     initialPage: 0,
   );
+
+  List<EmotionWidget> imageWidgets = [
+    const EmotionWidget(image: "assets/😊.png", text: "Happy"),
+    const EmotionWidget(image: "assets/😤.png", text: "Frustrated"),
+    const EmotionWidget(image: "assets/😞.png", text: "Sad"),
+    const EmotionWidget(image: "assets/😡.png", text: "Angry"),
+    const EmotionWidget(image: "assets/😌.png", text: "Peaceful"),
+    const EmotionWidget(image: "assets/😀.png", text: "Excited"),
+  ];
+
+  int? selectedEmotionId;
 
   @override
   void initState() {
@@ -61,6 +51,18 @@ class _EmotionPageState extends State<EmotionPage> {
     super.dispose();
   }
 
+  void _onEmotionSelected(int emotionId) {
+    setState(() {
+      selectedEmotionId = emotionId;
+    });
+    widget.onNextPage(
+      widget.questions[0]['id'],
+      selectedEmotionId!,
+      imageWidgets[currentPage].text,
+      imageWidgets[currentPage].image,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,19 +74,20 @@ class _EmotionPageState extends State<EmotionPage> {
           children: [
             Column(
               children: [
-                textWidget("How are you feeling?", true, false, false),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    textWidget(
-                      "Select the number that best represents",
-                      false,
-                      false,
-                      false,
-                    ),
-                  ],
+                textWidget(
+                  "${widget.questions[0]['question']}",
+                  true,
+                  false,
+                  false,
                 ),
-                textWidget("your Excitement level.", false, false, false),
+                textWidget(
+                  "Select the number that best represents",
+                  false,
+                  false,
+                  false,
+                ),
+                textWidget("your ${imageWidgets[currentPage].text} level",
+                    false, false, false)
               ],
             ),
             SizedBox(
@@ -96,19 +99,17 @@ class _EmotionPageState extends State<EmotionPage> {
                 physics: const BouncingScrollPhysics(),
                 padEnds: true,
                 controller: ctrl,
-                itemCount: emotionWidget.length,
+                itemCount: widget.questions[0]['options'].length,
                 itemBuilder: (_, index) {
                   double scale = currentPage == index ? 1.0 : 0.9;
                   return Transform.scale(
                     scale: scale,
                     child: GestureDetector(
                       onTap: () {
-                        widget.nextPage(
-                          emotionWidget[index].text,
-                          emotionWidget[index].image,
-                        );
+                        _onEmotionSelected(
+                            widget.questions[0]['options'][index]['id']);
                       },
-                      child: emotionWidget[index],
+                      child: imageWidgets[index],
                     ),
                   );
                 },
@@ -116,10 +117,8 @@ class _EmotionPageState extends State<EmotionPage> {
             ),
             forwardButton(
               () {
-                widget.nextPage(
-                  emotionWidget[currentPage].text,
-                  emotionWidget[currentPage].image,
-                );
+                _onEmotionSelected(
+                    widget.questions[0]['options'][currentPage]['id']);
               },
             ),
           ],

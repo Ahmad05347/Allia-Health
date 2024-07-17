@@ -5,24 +5,27 @@ import 'package:http/http.dart' as http;
 class AuthService {
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
-    const loginUrl = 'https://api-dev.allia.health/api/client/auth/login';
-    final response = await http.post(
-      Uri.parse(loginUrl),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'email': email,
-        'password': password,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('https://api-dev.allia.health/api/client/auth/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+      );
 
-    final responseData = jsonDecode(response.body);
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return responseData;
-    } else {
-      throw Exception('Failed to login: ${response.statusCode}');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body);
+      } else {
+        print('Failed to login: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to login');
+      }
+    } catch (e) {
+      print('Exception during login: $e');
+      throw Exception('Failed to login');
     }
   }
 }

@@ -6,7 +6,13 @@ import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class SliderMam extends StatefulWidget {
   final ImageInfo emotionImage;
-  const SliderMam({super.key, required this.emotionImage});
+  final Function(int) onLevelChanged; // Add the callback function
+
+  const SliderMam({
+    super.key,
+    required this.emotionImage,
+    required this.onLevelChanged, // Include it in the constructor
+  });
 
   @override
   State<SliderMam> createState() => _SliderMamState();
@@ -50,6 +56,8 @@ class _SliderMamState extends State<SliderMam> {
           setState(() {
             _value = newValue;
           });
+          int level = (_value / 25).round() + 1; // Convert value to level
+          widget.onLevelChanged(level); // Call the callback with the level
         },
       ),
     );
