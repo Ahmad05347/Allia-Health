@@ -23,9 +23,9 @@ class _HomePageState extends State<HomePage> {
   int selectedOptionId = 0;
   int selectedLevel = 1;
   String accessToken =
-      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJFbWFpbCI6ImRldkBhbGxpYXVrLmNvbSIsInVzZXJUeXBlIjoiY2xpZW50IiwiZW52IjoiZGV2IiwiaGFzaCI6Ikl6MFdUL3FLMWUiLCJpYXQiOjE3MjEyMDA3MzYsImV4cCI6MTcyMTIwMjUzNn0.Fx7kG3Q0IsqhXA6_DPZvFHUinGD4KUi1wRFXKpXY6Xw';
+      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJFbWFpbCI6ImRldkBhbGxpYXVrLmNvbSIsInVzZXJUeXBlIjoiY2xpZW50IiwiZW52IjoiZGV2IiwiaGFzaCI6Ikl6MFdUL3FLMWUiLCJpYXQiOjE3MjEyNTA4ODQsImV4cCI6MTcyMTI1MjY4NH0.2vgZVsyAeZTdTON8M__N1SaBXpHVjUgdixVXDaP9W0U';
   String refreshToken =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJFbWFpbCI6ImRldkBhbGxpYXVrLmNvbSIsInVzZXJUeXBlIjoiY2xpZW50IiwiaGFzaCI6Ikl6MFdUL3FLMWUiLCJlbnYiOiJkZXYiLCJpYXQiOjE3MjEyMDA3MzYsImV4cCI6MTcyMTQ1OTkzNn0.mFZUUT5js2ZaP31cObv4mcAkyAI13hFQgdwfXHA0sKo';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJFbWFpbCI6ImRldkBhbGxpYXVrLmNvbSIsInVzZXJUeXBlIjoiY2xpZW50IiwiaGFzaCI6Ikl6MFdUL3FLMWUiLCJlbnYiOiJkZXYiLCJpYXQiOjE3MjEyNTA4ODQsImV4cCI6MTcyMTUxMDA4NH0.ha7GgITWc5NncPAWQTswpqpGEHjrV6NlM6AkG4PlI6s';
   String clientId = '';
   List<dynamic> questions = [];
 
@@ -137,7 +137,7 @@ class _HomePageState extends State<HomePage> {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
+          'Content-Type': 'application/json; charset=utf-8',
           'Authorization': 'Bearer $accessToken',
         },
         body: jsonEncode({
@@ -189,7 +189,7 @@ class _HomePageState extends State<HomePage> {
     final response = await http.post(
       Uri.parse(refreshUrl),
       headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=utf-8',
       },
       body: jsonEncode({
         'refreshToken': refreshToken,

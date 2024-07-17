@@ -9,7 +9,7 @@ class AuthService {
       final response = await http.post(
         Uri.parse('https://api-dev.allia.health/api/client/auth/login'),
         headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
+          'Content-Type': 'application/json; charset=utf-8',
         },
         body: jsonEncode(<String, String>{
           'email': email,

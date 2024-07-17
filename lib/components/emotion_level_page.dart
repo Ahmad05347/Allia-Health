@@ -18,7 +18,7 @@ class EmotionLevelPage extends StatefulWidget {
   final VoidCallback? onBack;
 
   EmotionLevelPage({
-    super.key,
+    Key? key,
     required this.onNextPage,
     required this.selectedEmotionImage,
     required this.selectedEmotionText,
@@ -27,7 +27,7 @@ class EmotionLevelPage extends StatefulWidget {
     required this.accessToken,
     required this.refreshToken,
     this.onBack,
-  });
+  }) : super(key: key);
 
   @override
   _EmotionLevelPageState createState() => _EmotionLevelPageState();
@@ -98,56 +98,48 @@ class _EmotionLevelPageState extends State<EmotionLevelPage> {
   Future<void> _submitAnswer() async {
     const apiUrl = 'https://api-dev.allia.health/api/client/self-report/answer';
 
-    // Construct the answer for question 119 with the selected level
-    final selectedAnswer = {
-      'questionId': 119,
-      'selectedOptionId': selectedLevel + 498,
-      'freeformValue': null, // Hardcoded to null as specified
-    };
+    final answers = [
+      {
+        'questionId': widget.questionId,
+        'selectedOptionId': widget.selectedOptionId,
+        'freeformValue': null,
+        'selectedLevel': selectedLevel,
+      },
+    ];
 
-    final requestBody = {
-      'answers': [selectedAnswer],
-    };
+    final requestBody = jsonEncode({'answers': answers});
 
     final headers = {
-      'Authorization': 'Bearer ${widget.accessToken}',
-      'Content-Type': 'application/json; charset=UTF-8',
+      'Content-Type': 'application/json; charset=utf-8',
+      'Authorization': widget.accessToken,
     };
 
-    // Debugging information
     print('Request URL: $apiUrl');
     print('Request Headers: $headers');
-    print('Request Body: ${jsonEncode(requestBody)}');
+    print('Request Body: $requestBody');
 
     try {
-      final request = http.Request('POST', Uri.parse(apiUrl));
-      request.headers.addAll(headers);
-      request.body = jsonEncode(requestBody);
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: headers,
+        body: requestBody,
+      );
 
-      final response = await request.send();
-
-      // Get response
-      final responseJson = await response.stream.bytesToString();
-
-      // Debugging information
       print('Response status: ${response.statusCode}');
-      print('Response body: $responseJson');
+      print('Response body: ${response.body}');
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final jsonResponse = jsonDecode(responseJson);
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        print('Successfully submitted answer');
+        final jsonResponse = jsonDecode(response.body);
         if (jsonResponse['success'] == true) {
-          print('Response success: ${jsonResponse['success']}');
-          print('Response body: ${jsonResponse['body']}');
-          // Proceed to the next page or update the UI accordingly
           widget.onNextPage(selectedLevel);
         } else {
-          print('Unexpected response format: $responseJson');
+          print('Unexpected response format: ${response.body}');
         }
       } else if (response.statusCode == 419) {
-        // Token expired
         final newAccessToken = await _refreshToken();
         if (newAccessToken != null) {
-          await _submitAnswer(); // Retry with new token
+          await _submitAnswer();
         } else {
           print('Failed to refresh token');
           ScaffoldMessenger.of(context).showSnackBar(
@@ -155,10 +147,10 @@ class _EmotionLevelPageState extends State<EmotionLevelPage> {
           );
         }
       } else {
-        print('Failed to submit answer: ${response.reasonPhrase}');
+        print('Failed to submit answer: ${response.statusCode}');
         String message = 'Failed to submit answer';
-        if (responseJson.isNotEmpty) {
-          final jsonResponse = jsonDecode(responseJson);
+        if (response.body.isNotEmpty) {
+          final jsonResponse = jsonDecode(response.body);
           if (jsonResponse.containsKey('message')) {
             message = jsonResponse['message'].toString();
           }
@@ -181,7 +173,7 @@ class _EmotionLevelPageState extends State<EmotionLevelPage> {
     final response = await http.post(
       Uri.parse(refreshUrl),
       headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=utf-8',
       },
       body: jsonEncode({
         'refreshToken': widget.refreshToken,
